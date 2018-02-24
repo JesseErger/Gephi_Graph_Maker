@@ -11,6 +11,17 @@ def create_edge(source,target,file,weight = 0,weighted = False):
     file.write("  edge\n  [\n    source "+str(source)+"\n    target "+str(target)+"\n    value "+str(weight)+"\n  ]\n")
   else:
     file.write("  edge\n  [\n    source "+str(source)+"\n    target "+str(target)+"\n  ]\n")
+def check_if_edges(num_nodes,prob_edge,fp):
+  precision_of_prob = len(str(float(prob_edge)).split('.')[1]) #precision needed is based on the number of decimals in the probability. 
+  #iterate over all nodes except the last node
+  for cur_node in range(0,num_nodes-1): 
+   #check to see if all nodes after cur_node have an edge based on the given prob of an edge
+   for node_after in range(cur_node+1, num_nodes): 
+     #generate number from 1 to 10^(number of decimals in probability)
+     ran_num = randint(1,pow(10,precision_of_prob)) 
+     #if the random number/10^precision <= the probability of making an edge, create an edge.
+     if((ran_num/pow(10,precision_of_prob))<=prob_edge): 
+       create_edge(cur_node,node_after,fp) 
 
 #Tunable parameters   
 stats_fp = open("Graph_Results.txt",'w')
@@ -30,17 +41,8 @@ for i in range(0,num_graphs):
  fp.write("Creator \"Jesse Erger, Edge Probability = "+str(round(prob_of_edge,precision_of_prob))+"\"\ngraph\n[\n  directed "+str(directed)+"\n")
  create_nodes(num_nodes,fp)
  
- if(directed == 0):
-   #If the graph is not directed, the nested for loop below will double the probability of creating an edge between two nodes
-   prob_of_edge = prob_of_edge/2
-   #Need to add one to the precision as the division by two may add another decimal.
-   if(i == 0):
-     precision_of_prob += 1  
- for node_from in range(0,num_nodes):
-   for node_to in range(0,num_nodes):
-     ran_num = randint(0,pow(10,precision_of_prob))
-     if((ran_num/pow(10,precision_of_prob))<prob_of_edge and (self_loops or node_from != node_to)):
-       create_edge(node_from,node_to,fp) 
+ #Checks if there is an edge between each node based on the probability, if there is create an edge in the output file fp 
+ check_if_edges(num_nodes,prob_of_edge,fp)  
  fp.write("]") 
  fp.close()
 stats_fp.close()
